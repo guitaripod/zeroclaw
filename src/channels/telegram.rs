@@ -167,17 +167,18 @@ fn is_image_extension(path: &Path) -> bool {
 
 /// Build the user-facing content string for an incoming attachment.
 ///
-/// Photos with a recognized image extension use `[IMAGE:/path]` so the
-/// multimodal pipeline can validate vision capability. Non-image files
-/// always use `[Document: name] /path` regardless of how Telegram
-/// classified them.
+/// Photos and Documents with a recognized image extension use `[IMAGE:/path]`
+/// so the multimodal pipeline can validate vision capability and send them
+/// as proper image content blocks. Non-image files use `[Document: name] /path`.
 fn format_attachment_content(
     kind: IncomingAttachmentKind,
     local_filename: &str,
     local_path: &Path,
 ) -> String {
     match kind {
-        IncomingAttachmentKind::Photo if is_image_extension(local_path) => {
+        IncomingAttachmentKind::Photo | IncomingAttachmentKind::Document
+            if is_image_extension(local_path) =>
+        {
             format!("[IMAGE:{}]", local_path.display())
         }
         _ => {
